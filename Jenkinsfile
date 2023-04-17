@@ -1,4 +1,9 @@
 pipeline {
+  enviornment {
+    registry = 'jceja95/flask_app'
+    registryCredentials = 'docker'
+    cluster_name = 'skillstorm'
+  }
   agent {
     node {
       label 'docker'
@@ -12,23 +17,19 @@ pipeline {
       }
     }
 
-    stage('Build') {
-      steps {
-        sh 'docker build -t jceja95/flask_app .'
+  stage ('Build Stage') {
+    steps {
+      script {
+        dockerImage = docker.build(registry)
       }
     }
-
-    stage('Docker login') {
-      steps {
-        sh 'docker login -u jceja95 -p dckr_pat__iFGBrKnVvyuiaAKvsu4weX18q8'
-      }
-    }
-
-    stage('Docker push') {
-      steps {
-        sh 'docker push jceja95/flask_app'
-      }
-    }
-
   }
-}
+  stage ('Deploy Stage') {
+    steps {
+      script {
+        docker.withregistry('', registryCredentials) {
+              dockerImage.push()
+        }
+      }
+    }
+  }
