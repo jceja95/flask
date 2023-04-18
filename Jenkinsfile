@@ -1,9 +1,9 @@
 pipeline {
-  enviornment {
-    registry = 'jceja95/flask_app'
-    registryCredentials = 'docker'
-    cluster_name = 'skillstorm'
-  }
+    environment {
+        registry = 'jceja95/flask_app'
+        registryCredentials = 'docker'
+        cluster_name = 'skillstorm'
+    }
   agent {
     node {
       label 'docker'
@@ -13,24 +13,24 @@ pipeline {
   stages {
     stage('Git') {
       steps {
-        git(branch: 'main', url: 'https://github.com/jceja95/flasky')
+        git(url: 'https://github.com/jceja95/flasky', branch: 'main')
       }
     }
-  }
-  stage ('Build Stage') {
+stage('Build Stage') {
     steps {
-      script {
-        dockerImage = docker.build(registry)
-      }
-    }
-  }
-  stage ('Deploy Stage') {
-    steps {
-      script {
-        docker.withregistry('', registryCredentials) {
-              dockerImage.push()
+        script {
+            dockerImage = docker.build(registry)
         }
       }
     }
-  }
+stage('Deploy Stage') {
+    steps {
+        script {
+           docker.withRegistry('', registryCredentials) {
+                dockerImage.push()
+            }
+          }
+        }
+      }
+    }
 }
